@@ -1,597 +1,4984 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    />
+
     <title>CareSync Pro Hospital Dashboard</title>
 
-    <!--
-        Vue 3 is loaded from a CDN (Content Delivery Network).
-        This means no installation is needed.
-        The browser downloads Vue automatically when the page opens.
-    -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-    <style>
-        /* ── Reset and base ──────────────────────────────── */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f0f2f5;
-            color: #1a1a1a;
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        /* ── Top navigation bar ──────────────────────────── */
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1f2937;
+        }
+
+        /* ================= NAVBAR ================= */
+
         .navbar {
             background: #1f3864;
-            color: #ffffff;
-            padding: 16px 32px;
+            color: white;
+            padding: 16px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
         }
-        .navbar h1 { font-size: 22px; font-weight: 600; }
-        .navbar span { font-size: 14px; opacity: 0.8; }
 
-        /* ── Page wrapper ────────────────────────────────── */
-        .page { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+        .navbar h1 {
+            font-size: 21px;
+        }
 
-        /* ── Section headings ────────────────────────────── */
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .navbar-user {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .logout-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,.6);
+            border-radius: 6px;
+            padding: 7px 13px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,.1);
+        }
+
+        /* ================= PAGE ================= */
+
+        .page {
+            max-width: 1250px;
+            margin: auto;
+            padding: 28px 22px 50px;
+        }
+
         .section-title {
             font-size: 18px;
-            font-weight: 600;
             color: #1f3864;
-            margin-bottom: 16px;
-            padding-bottom: 6px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 7px;
             border-bottom: 2px solid #1f3864;
         }
 
-        /* ── Summary cards ───────────────────────────────── */
+        /* ================= CARDS ================= */
+
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 16px;
-            margin-bottom: 40px;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
         }
+
         .card {
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 24px 20px;
+            background: white;
+            border-radius: 9px;
+            padding: 20px;
+            box-shadow: 0 2px 7px rgba(0,0,0,.07);
             border-left: 4px solid #1f3864;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
         }
-        .card .label {
-            font-size: 13px;
-            color: #555;
+
+        .card-label {
+            color: #6b7280;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
         }
-        .card .value {
-            font-size: 32px;
+
+        .card-value {
+            color: #1f3864;
+            font-size: 27px;
+            font-weight: 700;
+        }
+
+        /* ================= TABS ================= */
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 22px;
+        }
+
+        .tab-btn {
+            border: 1px solid #1f3864;
+            background: white;
+            color: #1f3864;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .tab-btn:hover,
+        .tab-btn.active {
+            background: #1f3864;
+            color: white;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-wrap {
+            background: white;
+            border-radius: 9px;
+            overflow-x: auto;
+            box-shadow: 0 2px 7px rgba(0,0,0,.07);
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: #1f3864;
+            color: white;
+            text-align: left;
+            padding: 11px 13px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 13px;
+            border-bottom: 1px solid #edf0f2;
+        }
+
+        tr:nth-child(even) td {
+            background: #fafafa;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        button {
+            font-family: inherit;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 8px 13px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #1f3864;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16294a;
+        }
+
+        .btn-danger {
+            background: #c0392b;
+            color: white;
+        }
+
+        .btn-success {
+            background: #1a7a4a;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* ================= BADGES ================= */
+
+        .badge {
+            display: inline-block;
+            padding: 4px 9px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-booked {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-free {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* ================= FORMS ================= */
+
+        .form-card {
+            background: white;
+            border-radius: 9px;
+            padding: 22px;
+            box-shadow: 0 2px 7px rgba(0,0,0,.07);
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 5px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 10px 11px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #1f3864;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* ================= SLOT GRID ================= */
+
+        .slot-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 10px;
+        }
+
+        .slot {
+            border: 1px solid #1f3864;
+            color: #1f3864;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .slot:hover,
+        .slot.selected {
+            background: #1f3864;
+            color: white;
+        }
+
+        .no-slots {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        /* ================= ALERT ================= */
+
+        .alert {
+            padding: 11px 14px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.48);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            width: 620px;
+            max-width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 15px 45px rgba(0,0,0,.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #1f3864;
+            font-size: 19px;
+        }
+
+        .close-btn {
+            border: none;
+            background: transparent;
+            font-size: 25px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        /* ================= LOADING ================= */
+
+        .loading {
+            text-align: center;
+            padding: 45px;
+            color: #6b7280;
+        }
+
+        .empty {
+            padding: 25px;
+            text-align: center;
+            color: #6b7280;
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* ================= LOOKUP ================= */
+
+        .lookup-panel {
+            background: white;
+            border-radius: 9px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 7px rgba(0,0,0,.07);
+        }
+
+        .lookup-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .lookup-row input {
+            max-width: 250px;
+        }
+
+        .lookup-result {
+            margin-top: 15px;
+            padding: 13px;
+            background: #f8fafc;
+            border-left: 4px solid #1f3864;
+            border-radius: 5px;
+            line-height: 1.7;
+            font-size: 13px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 700px) {
+
+            .page {
+                padding: 18px 12px;
+            }
+
+            .navbar {
+                padding: 14px 15px;
+            }
+
+            .navbar h1 {
+                font-size: 18px;
+            }
+
+            .lookup-row {
+                flex-direction: column;
+            }
+
+            .lookup-row input {
+                max-width: none;
+            }
+
+        }
+
+    
+        .slot-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+        .slot-btn { padding:10px 16px; border:1px solid #1f3864; background:#fff; color:#1f3864; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600; }
+        .slot-btn:hover { background:#eef3fb; }
+        .slot-btn.selected { background:#1f3864; color:#fff; }
+        .slot-note { margin-top:8px; font-size:14px; color:#6b7280; }
+        .slot-error { margin-top:8px; font-size:14px; color:#b91c1c; }
+        .booking-success { text-align:center; padding:30px 20px; }
+        .booking-success h2 { color:#047857; margin:0 0 6px; }
+        .booking-success .received { display:inline-block; margin:10px 0 16px; padding:6px 16px; border-radius:20px; background:#ecfdf5; color:#047857; font-weight:700; }
+        .booking-success .details { display:inline-block; text-align:left; line-height:2; font-size:16px; }
+        /* ================= AI FEEDBACK ANALYSIS ================= */
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .fa-panel {
+            background: white;
+            border-radius: 9px;
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 7px rgba(0,0,0,.07);
+            border-left: 4px solid #1f3864;
+        }
+
+        .fa-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .fa-title {
+            font-size: 16px;
             font-weight: 700;
             color: #1f3864;
         }
-        .card.red    { border-left-color: #c0392b; }
-        .card.red .value { color: #c0392b; }
-        .card.green  { border-left-color: #1a7a4a; }
-        .card.green .value { color: #1a7a4a; }
-        .card.amber  { border-left-color: #b8860b; }
-        .card.amber .value { color: #b8860b; }
-        .card.purple { border-left-color: #6a3d9a; }
-        .card.purple .value { color: #6a3d9a; }
 
-        /* ── Tab buttons ─────────────────────────────────── */
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn {
-            padding: 8px 20px;
-            border: 2px solid #1f3864;
-            background: #ffffff;
-            color: #1f3864;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.15s;
+        .fa-sub {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 3px;
         }
-        .tab-btn.active { background: #1f3864; color: #ffffff; }
 
-        /* ── Search box ──────────────────────────────────── */
-        .search-box {
-            width: 100%;
-            max-width: 360px;
-            padding: 8px 14px;
-            border: 1px solid #cccccc;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-bottom: 16px;
-            outline: none;
+        .fa-panel .cards {
+            margin-bottom: 18px;
         }
-        .search-box:focus { border-color: #1f3864; }
 
-        /* ── Data table ──────────────────────────────────── */
-        .table-wrap {
-            background: #ffffff;
+        .fa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .fa-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .fa-block {
+            background: #f9fafb;
             border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-            overflow-x: auto;
-            margin-bottom: 40px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
         }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th {
-            background: #1f3864;
-            color: #ffffff;
-            padding: 12px 16px;
-            text-align: left;
-            font-weight: 600;
+
+        .fa-grid .fa-block,
+        .fa-columns .fa-block {
+            margin-bottom: 0;
+        }
+
+        .fa-block-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .fa-block .table-wrap {
+            margin-bottom: 0;
+        }
+
+        .fa-block p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .fa-block ul {
+            padding-left: 18px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .fa-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 7px;
             font-size: 13px;
         }
-        td { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
-        tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) td { background: #fafafa; }
 
-        /* ── Status badges ───────────────────────────────── */
-        .badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
+        .fa-bar-label {
+            width: 36px;
             font-weight: 600;
+            color: #374151;
         }
-        .badge-paid     { background: #d4edda; color: #155724; }
-        .badge-pending  { background: #fff3cd; color: #856404; }
-        .badge-partial  { background: #d1ecf1; color: #0c5460; }
-        .badge-rejected { background: #f8d7da; color: #721c24; }
-        .badge-read     { background: #e2e3e5; color: #383d41; }
-        .badge-unread   { background: #d1ecf1; color: #0c5460; }
 
-        /* ── Loading and error states ────────────────────── */
-        .loading { text-align: center; padding: 40px; color: #888; font-size: 16px; }
-        .error   { text-align: center; padding: 40px; color: #c0392b; font-size: 15px; }
-    </style>
+        .fa-bar-track {
+            flex: 1;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .fa-bar-fill {
+            height: 100%;
+            background: #1f3864;
+            border-radius: 5px;
+        }
+
+        .fa-bar-count {
+            width: 30px;
+            text-align: right;
+            color: #6b7280;
+        }
+
+        .fa-stack {
+            display: flex;
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+            background: #e5e7eb;
+        }
+
+        .fa-seg-positive { background: #1a7a4a; }
+        .fa-seg-neutral  { background: #f59e0b; }
+        .fa-seg-negative { background: #c0392b; }
+
+        .fa-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #374151;
+        }
+
+        .fa-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .fa-chip {
+            background: #e5e7eb;
+            color: #374151;
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .fa-flag {
+            background: #fff5f5;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .fa-flag-meta {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .fa-flag-reason {
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #991b1b;
+        }
+
+        .fa-note {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .badge-positive,
+        .badge-negative,
+        .badge-neutral,
+        .badge-mixed {
+            text-transform: capitalize;
+        }
+
+        .badge-positive { background: #dcfce7; color: #166534; }
+        .badge-negative { background: #fee2e2; color: #991b1b; }
+        .badge-neutral  { background: #f3f4f6; color: #374151; }
+        .badge-mixed    { background: #fef3c7; color: #92400e; }
+
+</style>
+
 </head>
+
 
 <body>
 
-<!-- ───────────────────────────────────────────────────────────────────────
-     Navigation Bar
-     The {{ }} syntax is Vue. It means: display the value of this variable.
-──────────────────────────────────────────────────────────────────────────── -->
-<div class="navbar">
-    <h1>CareSync Pro Hospital Dashboard</h1>
-    <span>Live Data  |  MySQL  |  FastAPI  |  Vue.js</span>
-</div>
-
-<!-- ───────────────────────────────────────────────────────────────────────
-     Main application div. id='app' is what Vue attaches to.
-──────────────────────────────────────────────────────────────────────────── -->
 <div id="app">
-    <div class="page">
 
-        <!-- Loading state: shown while data is being fetched -->
-        <div v-if="loading" class="loading">Loading hospital data...</div>
+    <!-- ============================================================
+         NAVBAR
+    ============================================================= -->
 
-        <!-- Error state: shown if the API cannot be reached -->
-        <div v-else-if="error" class="error">
-            Cannot connect to the backend server.<br/>
-            Make sure uvicorn is running in your Command Prompt.<br/>
-            Command: uvicorn main:app --reload
+    <div class="navbar">
+
+        <h1>
+            CareSync Pro Hospital Dashboard
+        </h1>
+
+        <div class="navbar-right">
+
+            <span class="navbar-user">
+                {{ userEmail }}
+                <span v-if="userRole">
+                    | {{ userRole }}
+                </span>
+            </span>
+
+            <button
+                class="logout-btn"
+                @click="logout"
+            >
+                Logout
+            </button>
+
         </div>
 
-        <!-- Main content: shown when data has loaded successfully -->
+    </div>
+
+
+    <!-- ============================================================
+         PAGE
+    ============================================================= -->
+
+    <div class="page">
+
+        <!-- ========================================================
+             AUTHENTICATION ERROR
+        ========================================================= -->
+
+        <div
+            v-if="authError"
+            class="alert alert-error"
+        >
+            {{ authError }}
+        </div>
+
+
+        <!-- ========================================================
+             LOADING
+        ========================================================= -->
+
+        <div
+            v-if="loading"
+            class="loading"
+        >
+            Loading CareSync dashboard...
+        </div>
+
+
         <div v-else>
 
-            <!-- ── Summary Cards ────────────────────────────────────── -->
-            <p class="section-title">Hospital Summary</p>
-            <div class="cards">
-                <div class="card">
-                    <div class="label">Total Patients</div>
-                    <div class="value">{{ summary.total_patients }}</div>
+            <!-- ====================================================
+                 SUMMARY
+            ===================================================== -->
+
+            <div v-if="userRole !== 'doctor'">
+
+                <div class="section-title">
+                    Hospital Summary
                 </div>
-                <div class="card">
-                    <div class="label">Active Doctors</div>
-                    <div class="value">{{ summary.total_doctors }}</div>
+
+                <div class="cards">
+
+                    <div class="card">
+                        <div class="card-label">
+                            Total Patients
+                        </div>
+                        <div class="card-value">
+                            {{ summary.total_patients || 0 }}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">
+                            Active Doctors
+                        </div>
+                        <div class="card-value">
+                            {{ summary.total_doctors || 0 }}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">
+                            Appointments
+                        </div>
+                        <div class="card-value">
+                            {{ summary.total_appointments || 0 }}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">
+                            Bills
+                        </div>
+                        <div class="card-value">
+                            {{ summary.total_bills || 0 }}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">
+                            Prescriptions
+                        </div>
+                        <div class="card-value">
+                            {{ summary.total_prescriptions || 0 }}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-label">
+                            Reports
+                        </div>
+                        <div class="card-value">
+                            {{ summary.total_reports || 0 }}
+                        </div>
+                    </div>
+
                 </div>
-                <div class="card">
-                    <div class="label">Total Appointments</div>
-                    <div class="value">{{ summary.total_appointments }}</div>
-                </div>
-                <div class="card">
-                    <div class="label">Total Bills</div>
-                    <div class="value">{{ summary.total_bills }}</div>
-                </div>
-                <div class="card red">
-                    <div class="label">Rejection Rate</div>
-                    <div class="value">{{ summary.rejection_rate }}%</div>
-                </div>
-                <div class="card green">
-                    <div class="label">Revenue Collected</div>
-                    <div class="value">Rs {{ formatNumber(summary.total_revenue) }}</div>
-                </div>
-                <div class="card purple">
-                    <div class="label">Prescriptions</div>
-                    <div class="value">{{ summary.total_prescriptions }}</div>
-                </div>
-                <div class="card amber">
-                    <div class="label">Unread Notifications</div>
-                    <div class="value">{{ summary.unread_notifications }}</div>
-                </div>
-                <div class="card">
-                    <div class="label">Total Reports</div>
-                    <div class="value">{{ summary.total_reports }}</div>
-                </div>
+
             </div>
 
-            <!-- ── Tab Buttons ──────────────────────────────────────── -->
-            <div class="tabs">
-                <!--
-                    @click is Vue shorthand for onclick.
-                    :class is Vue shorthand for binding CSS classes dynamically.
-                    When activeTab equals a tab's name, that tab-btn gets the 'active' class.
-                -->
-                <button class="tab-btn" :class="{ active: activeTab === 'patients' }"
-                        @click="activeTab = 'patients'">Patients</button>
-                <button class="tab-btn" :class="{ active: activeTab === 'billing' }"
-                        @click="activeTab = 'billing'">Billing</button>
-                <button class="tab-btn" :class="{ active: activeTab === 'doctors' }"
-                        @click="activeTab = 'doctors'">Doctors</button>
-                <button class="tab-btn" :class="{ active: activeTab === 'prescriptions' }"
-                        @click="activeTab = 'prescriptions'">Prescriptions</button>
-                <button class="tab-btn" :class="{ active: activeTab === 'notifications' }"
-                        @click="activeTab = 'notifications'">Notifications</button>
-                <button class="tab-btn" :class="{ active: activeTab === 'reports' }"
-                        @click="activeTab = 'reports'">Reports</button>
-                <button class="tab-btn" :class="{ active: activeTab === 'activity' }"
-                        @click="activeTab = 'activity'">Activity Log</button>
-            </div>
 
-            <!-- ── Patients Tab ─────────────────────────────────────── -->
-            <!--
-                v-if="activeTab === 'patients'" means:
-                only show this section when the Patients tab is active.
-            -->
-            <div v-if="activeTab === 'patients'">
-                <input
-                    class="search-box"
-                    v-model="patientSearch"
-                    placeholder="Search patient by name..."
-                />
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Full Name</th>
-                                <th>Gender</th>
-                                <th>Blood Group</th>
-                                <th>Date of Birth</th>
-                                <th>Registered On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!--
-                                v-for loops through the filteredPatients array.
-                                :key is required by Vue to track each row efficiently.
-                            -->
-                            <tr v-for="p in filteredPatients" :key="p.patient_id">
-                                <td>{{ p.patient_id }}</td>
-                                <td>{{ p.full_name }}</td>
-                                <td>{{ p.gender }}</td>
-                                <td>{{ p.blood_group }}</td>
-                                <td>{{ p.date_of_birth }}</td>
-                                <td>{{ p.registered_on }}</td>
-                            </tr>
-                            <tr v-if="filteredPatients.length === 0">
-                                <td colspan="6" style="text-align:center; color:#888;">
-                                    No patients match your search.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- ====================================================
+                 DOCTOR AREA
+            ===================================================== -->
+
+            <div v-if="userRole === 'doctor'">
+
+                <div class="tabs">
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: doctorTab === 'appointments'}"
+                        @click="doctorTab = 'appointments'; loadDoctorAppointments()"
+                    >
+                        My Appointments
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: doctorTab === 'availability'}"
+                        @click="doctorTab = 'availability'; loadDoctorAvailability()"
+                    >
+                        My Availability
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: doctorTab === 'feedback'}"
+                        @click="doctorTab = 'feedback'; loadDoctorFeedback()"
+                    >
+                        Patient Feedback
+                    </button>
+
                 </div>
-            </div>
 
-            <!-- ── Billing Tab ──────────────────────────────────────── -->
-            <div v-if="activeTab === 'billing'">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Bill ID</th>
-                                <th>Patient Name</th>
-                                <th>Total Amount</th>
-                                <th>Amount Paid</th>
-                                <th>Status</th>
-                                <th>Bill Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="b in bills" :key="b.bill_id">
-                                <td>{{ b.bill_id }}</td>
-                                <td>{{ b.patient_name }}</td>
-                                <td>Rs {{ b.total_amount.toFixed(2) }}</td>
-                                <td>Rs {{ b.amount_paid.toFixed(2) }}</td>
-                                <td>
-                                    <!--
-                                        badgeClass() is a method defined in the Vue app below.
-                                        It returns the correct CSS class based on the status value.
-                                    -->
-                                    <span class="badge" :class="badgeClass(b.status)">
-                                        {{ b.status }}
-                                    </span>
-                                </td>
-                                <td>{{ b.bill_date }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- ================================================
+                     DOCTOR APPOINTMENTS
+                ================================================= -->
+
+                <div v-if="doctorTab === 'appointments'">
+
+                    <div class="section-title">
+                        My Appointments
+                    </div>
+
+                    <div
+                        v-if="doctorAppointments.length === 0"
+                        class="empty"
+                    >
+                        No appointments found.
+                    </div>
+
+                    <div
+                        v-else
+                        class="table-wrap"
+                    >
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Patient</th>
+                                    <th>Phone</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="appointment in doctorAppointments"
+                                    :key="appointment.appointment_id"
+                                >
+
+                                    <td>
+                                        {{ appointment.appointment_date }}
+                                    </td>
+
+                                    <td>
+                                        {{ formatTime(appointment.appointment_time) }}
+                                    </td>
+
+                                    <td>
+                                        {{ appointment.patient_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ appointment.phone }}
+                                    </td>
+
+                                    <td>
+                                        {{ appointment.reason }}
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="badge"
+                                            :class="statusClass(appointment.status)"
+                                        >
+                                            {{ appointment.status }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <button
+                                            v-if="appointment.status === 'Scheduled'"
+                                            class="btn btn-success"
+                                            @click="openComplete(appointment)"
+                                        >
+                                            Complete
+                                        </button>
+
+                                        <span
+                                            v-else
+                                        >
+                                            —
+
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
                 </div>
-            </div>
 
-            <!-- ── Doctors Tab ──────────────────────────────────────── -->
-            <div v-if="activeTab === 'doctors'">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Full Name</th>
-                                <th>Specialisation</th>
-                                <th>Completed Appointments</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="d in doctors" :key="d.doctor_id">
-                                <td>{{ d.doctor_id }}</td>
-                                <td>{{ d.full_name }}</td>
-                                <td>{{ d.specialisation }}</td>
-                                <td>{{ d.total_appointments }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- ================================================
+                     DOCTOR AVAILABILITY
+                ================================================= -->
+
+                <div v-if="doctorTab === 'availability'">
+
+                    <div class="form-card">
+
+                        <div class="section-title">
+                            Add Appointment Availability
+                        </div>
+
+                        <div
+                            v-if="availabilityMessage"
+                            :class="[
+                                'alert',
+                                availabilitySuccess
+                                    ? 'alert-success'
+                                    : 'alert-error'
+                            ]"
+                        >
+                            {{ availabilityMessage }}
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+
+                                <label>
+                                    Available Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    v-model="newAvailability.date"
+                                    :min="today"
+                                />
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+                                    Available Time
+                                </label>
+
+                                <input
+                                    type="time"
+                                    v-model="newAvailability.time"
+                                />
+
+                            </div>
+
+                        </div>
+
+                        <br />
+
+                        <button
+                            class="btn btn-primary"
+                            @click="addAvailability"
+                            :disabled="availabilityLoading"
+                        >
+                            {{
+                                availabilityLoading
+                                    ? "Saving..."
+                                    : "Add Availability"
+                            }}
+                        </button>
+
+                    </div>
+
+
+                    <div class="section-title">
+                        My Available Slots
+                    </div>
+
+                    <div
+                        v-if="doctorAvailability.length === 0"
+                        class="empty"
+                    >
+                        You have not added any availability slots.
+                    </div>
+
+                    <div
+                        v-else
+                        class="table-wrap"
+                    >
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="slot in doctorAvailability"
+                                    :key="slot.availability_id"
+                                >
+
+                                    <td>
+                                        {{ slot.available_date }}
+                                    </td>
+
+                                    <td>
+                                        {{ formatTime(slot.available_time) }}
+                                    </td>
+
+                                    <td>
+
+                                        <span
+                                            class="badge"
+                                            :class="
+                                                slot.is_booked
+                                                    ? 'badge-booked'
+                                                    : 'badge-free'
+                                            "
+                                        >
+                                            {{
+                                                slot.is_booked
+                                                    ? "Booked"
+                                                    : "Available"
+                                            }}
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        <button
+                                            v-if="!slot.is_booked"
+                                            class="btn btn-danger"
+                                            @click="deleteAvailability(slot)"
+                                        >
+                                            Delete
+                                        </button>
+
+                                        <span v-else>
+                                            —
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
                 </div>
-            </div>
 
-            <!-- ── Prescriptions Tab ────────────────────────────────── -->
-            <div v-if="activeTab === 'prescriptions'">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Patient</th>
-                                <th>Doctor</th>
-                                <th>Medicine</th>
-                                <th>Dosage</th>
-                                <th>Frequency</th>
-                                <th>Duration (days)</th>
-                                <th>Prescribed On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="pr in prescriptions" :key="pr.prescription_id">
-                                <td>{{ pr.prescription_id }}</td>
-                                <td>{{ pr.patient_name }}</td>
-                                <td>{{ pr.doctor_name }}</td>
-                                <td>{{ pr.medicine_name }}</td>
-                                <td>{{ pr.dosage }}</td>
-                                <td>{{ pr.frequency }}</td>
-                                <td>{{ pr.duration_days }}</td>
-                                <td>{{ pr.prescribed_on }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- ================================================
+                     DOCTOR FEEDBACK
+                ================================================= -->
+
+                <div v-if="doctorTab === 'feedback'">
+
+                    <div class="section-title">
+                        Patient Feedback
+                    </div>
+
+                    <!-- ============================================
+                         AI FEEDBACK ANALYSIS
+                    ============================================= -->
+
+                    <div
+                        v-if="doctorFeedback.length > 0"
+                        class="fa-panel"
+                    >
+
+                        <div class="fa-head">
+
+                            <div>
+
+                                <div class="fa-title">
+                                    AI Feedback Analysis
+                                </div>
+
+                                <div class="fa-sub">
+                                    Summarises your ratings and written
+                                    comments into themes and suggested
+                                    actions.
+                                </div>
+
+                            </div>
+
+                            <button
+                                class="btn btn-primary"
+                                :disabled="analysisLoading"
+                                @click="analyseFeedback(!!feedbackAnalysis)"
+                            >
+                                {{ analysisLoading
+                                    ? "Analysing..."
+                                    : (feedbackAnalysis
+                                        ? "Re-run Analysis"
+                                        : "Analyse Feedback") }}
+                            </button>
+
+                        </div>
+
+                        <div
+                            v-if="analysisError"
+                            class="alert alert-error"
+                        >
+                            {{ analysisError }}
+                        </div>
+
+                        <div v-if="feedbackAnalysis">
+
+                            <div
+                                v-if="analysisIsStale()"
+                                class="alert alert-info"
+                            >
+                                New feedback has arrived since this
+                                analysis. Click "Re-run Analysis" to
+                                include it.
+                            </div>
+
+                            <!-- Summary numbers -->
+
+                            <div class="cards">
+
+                                <div class="card">
+                                    <div class="card-label">Average Rating</div>
+                                    <div class="card-value">
+                                        {{ feedbackAnalysis.stats.average === null
+                                            ? "-"
+                                            : feedbackAnalysis.stats.average + " / 5" }}
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-label">Reviews</div>
+                                    <div class="card-value">
+                                        {{ feedbackAnalysis.stats.total }}
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-label">Positive (4-5 stars)</div>
+                                    <div class="card-value">
+                                        {{ feedbackAnalysis.stats.positive_percent }}%
+                                    </div>
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-label">Negative (1-2 stars)</div>
+                                    <div class="card-value">
+                                        {{ feedbackAnalysis.stats.negative_percent }}%
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Distribution + sentiment + trend -->
+
+                            <div class="fa-grid">
+
+                                <div class="fa-block">
+
+                                    <div class="fa-block-title">
+                                        Rating Distribution
+                                    </div>
+
+                                    <div
+                                        class="fa-bar-row"
+                                        v-for="row in feedbackAnalysis.stats.distribution"
+                                        :key="row.stars"
+                                    >
+                                        <span class="fa-bar-label">
+                                            {{ row.stars }} &#9733;
+                                        </span>
+
+                                        <div class="fa-bar-track">
+                                            <div
+                                                class="fa-bar-fill"
+                                                :style="{ width: row.percent + '%' }"
+                                            ></div>
+                                        </div>
+
+                                        <span class="fa-bar-count">
+                                            {{ row.count }}
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                <div class="fa-block">
+
+                                    <div class="fa-block-title">
+                                        Sentiment
+                                    </div>
+
+                                    <div class="fa-stack">
+                                        <div
+                                            class="fa-seg-positive"
+                                            :style="{ width: feedbackAnalysis.sentiment.positive.percent + '%' }"
+                                        ></div>
+                                        <div
+                                            class="fa-seg-neutral"
+                                            :style="{ width: feedbackAnalysis.sentiment.neutral.percent + '%' }"
+                                        ></div>
+                                        <div
+                                            class="fa-seg-negative"
+                                            :style="{ width: feedbackAnalysis.sentiment.negative.percent + '%' }"
+                                        ></div>
+                                    </div>
+
+                                    <div class="fa-legend">
+                                        <span>Positive: {{ feedbackAnalysis.sentiment.positive.count }}</span>
+                                        <span>Neutral: {{ feedbackAnalysis.sentiment.neutral.count }}</span>
+                                        <span>Negative: {{ feedbackAnalysis.sentiment.negative.count }}</span>
+                                    </div>
+
+                                    <div
+                                        v-if="feedbackAnalysis.sentiment_basis === 'rating'"
+                                        class="fa-note"
+                                    >
+                                        Based on star ratings only.
+                                    </div>
+
+                                    <div
+                                        v-if="feedbackAnalysis.stats.trend.length > 1"
+                                        style="margin-top: 16px;"
+                                    >
+                                        <div class="fa-block-title">
+                                            Monthly Average
+                                        </div>
+
+                                        <div class="fa-chips">
+                                            <span
+                                                class="fa-chip"
+                                                v-for="month in feedbackAnalysis.stats.trend"
+                                                :key="month.month"
+                                            >
+                                                {{ formatMonth(month.month) }}:
+                                                <strong>{{ month.average }}</strong>
+                                                ({{ month.count }})
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- AI insights -->
+
+                            <div v-if="feedbackAnalysis.ai.status === 'ok'">
+
+                                <div class="fa-block">
+
+                                    <div class="fa-block-title">
+                                        Summary
+                                    </div>
+
+                                    <p>{{ feedbackAnalysis.ai.summary }}</p>
+
+                                    <div class="fa-note">
+                                        Based on
+                                        {{ feedbackAnalysis.analysed_comments }}
+                                        of
+                                        {{ feedbackAnalysis.stats.with_comments }}
+                                        written comments<span
+                                            v-if="feedbackAnalysis.truncated"
+                                        > (most recent only)</span>.
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    v-if="feedbackAnalysis.ai.flagged.length > 0"
+                                    class="fa-block"
+                                    style="background: transparent; padding: 0;"
+                                >
+
+                                    <div class="fa-block-title">
+                                        Needs Attention
+                                    </div>
+
+                                    <div
+                                        class="fa-flag"
+                                        v-for="item in feedbackAnalysis.ai.flagged"
+                                        :key="item.feedback_id"
+                                    >
+                                        <div class="fa-flag-meta">
+                                            {{ item.patient_name }}
+                                            &middot; {{ item.rating }} / 5
+                                            &middot; {{ item.created_at }}
+                                        </div>
+
+                                        <div>{{ item.comment }}</div>
+
+                                        <div class="fa-flag-reason">
+                                            {{ item.reason }}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div
+                                    v-if="feedbackAnalysis.ai.themes.length > 0"
+                                    class="fa-block"
+                                >
+
+                                    <div class="fa-block-title">
+                                        Themes
+                                    </div>
+
+                                    <div class="table-wrap">
+
+                                        <table>
+
+                                            <thead>
+                                                <tr>
+                                                    <th>Theme</th>
+                                                    <th>Sentiment</th>
+                                                    <th>Mentions</th>
+                                                    <th>Insight</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr
+                                                    v-for="(theme, themeIndex) in feedbackAnalysis.ai.themes"
+                                                    :key="themeIndex"
+                                                >
+                                                    <td>{{ theme.theme }}</td>
+                                                    <td>
+                                                        <span :class="sentimentBadge(theme.sentiment)">
+                                                            {{ theme.sentiment }}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ theme.mentions }}</td>
+                                                    <td>{{ theme.insight }}</td>
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+
+                                <div class="fa-columns">
+
+                                    <div
+                                        v-if="feedbackAnalysis.ai.strengths.length > 0"
+                                        class="fa-block"
+                                    >
+                                        <div class="fa-block-title">Strengths</div>
+                                        <ul>
+                                            <li
+                                                v-for="(item, itemIndex) in feedbackAnalysis.ai.strengths"
+                                                :key="itemIndex"
+                                            >{{ item }}</li>
+                                        </ul>
+                                    </div>
+
+                                    <div
+                                        v-if="feedbackAnalysis.ai.improvements.length > 0"
+                                        class="fa-block"
+                                    >
+                                        <div class="fa-block-title">To Improve</div>
+                                        <ul>
+                                            <li
+                                                v-for="(item, itemIndex) in feedbackAnalysis.ai.improvements"
+                                                :key="itemIndex"
+                                            >{{ item }}</li>
+                                        </ul>
+                                    </div>
+
+                                    <div
+                                        v-if="feedbackAnalysis.ai.suggested_actions.length > 0"
+                                        class="fa-block"
+                                    >
+                                        <div class="fa-block-title">Suggested Actions</div>
+                                        <ul>
+                                            <li
+                                                v-for="(item, itemIndex) in feedbackAnalysis.ai.suggested_actions"
+                                                :key="itemIndex"
+                                            >{{ item }}</li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                v-else
+                                class="alert alert-info"
+                            >
+                                {{ feedbackAnalysis.ai.reason }}
+                            </div>
+
+                            <div class="fa-note">
+                                <span v-if="feedbackAnalysis.ai.status === 'ok'">
+                                    Insights are AI-generated from patient
+                                    comments and can contain mistakes. Please
+                                    review before acting.
+                                </span>
+                                <span v-if="formatGeneratedAt(feedbackAnalysis.generated_at)">
+                                    Generated
+                                    {{ formatGeneratedAt(feedbackAnalysis.generated_at) }}<span
+                                        v-if="feedbackAnalysis.cached"
+                                    > (saved result)</span>.
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        v-if="doctorFeedback.length === 0"
+                        class="empty"
+                    >
+                        No patient feedback available yet.
+                    </div>
+
+                    <div
+                        v-else
+                        class="table-wrap"
+                    >
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Rating</th>
+                                    <th>Comment</th>
+                                    <th v-if="feedbackAnalysis">Sentiment</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="feedback in doctorFeedback"
+                                    :key="feedback.feedback_id"
+                                >
+
+                                    <td>
+                                        {{ feedback.created_at }}
+                                    </td>
+
+                                    <td>
+                                        {{ feedback.patient_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ feedback.rating }} / 5
+                                    </td>
+
+                                    <td>
+                                        {{ feedback.comment || "No comment" }}
+                                    </td>
+
+                                    <td v-if="feedbackAnalysis">
+                                        <span
+                                            v-if="rowSentiment(feedback.feedback_id)"
+                                            :class="sentimentBadge(rowSentiment(feedback.feedback_id))"
+                                        >
+                                            {{ rowSentiment(feedback.feedback_id) }}
+                                        </span>
+                                        <span v-else>-</span>
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
                 </div>
+
             </div>
 
-            <!-- ── Notifications Tab ────────────────────────────────── -->
-            <div v-if="activeTab === 'notifications'">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User Type</th>
-                                <th>User ID</th>
-                                <th>Title</th>
-                                <th>Message</th>
-                                <th>Status</th>
-                                <th>Created On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="n in notifications" :key="n.notification_id">
-                                <td>{{ n.notification_id }}</td>
-                                <td>{{ n.user_type }}</td>
-                                <td>{{ n.user_id }}</td>
-                                <td>{{ n.title }}</td>
-                                <td>{{ n.message }}</td>
-                                <td>
-                                    <span class="badge" :class="n.is_read ? 'badge-read' : 'badge-unread'">
-                                        {{ n.is_read ? 'Read' : 'Unread' }}
-                                    </span>
-                                </td>
-                                <td>{{ n.created_on }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+            <!-- ====================================================
+                 GENERAL HOSPITAL DASHBOARD
+            ===================================================== -->
+
+            <div
+                v-if="
+                    userRole !== 'doctor'
+                "
+            >
+
+                <div class="tabs">
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'patients'}"
+                        @click="activeTab = 'patients'"
+                    >
+                        Patients
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'billing'}"
+                        @click="activeTab = 'billing'"
+                    >
+                        Billing
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'doctors'}"
+                        @click="activeTab = 'doctors'"
+                    >
+                        Doctors
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'prescriptions'}"
+                        @click="activeTab = 'prescriptions'"
+                    >
+                        Prescriptions
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'notifications'}"
+                        @click="activeTab = 'notifications'"
+                    >
+                        Notifications
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'reports'}"
+                        @click="activeTab = 'reports'"
+                    >
+                        Reports
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'activity'}"
+                        @click="activeTab = 'activity'"
+                    >
+                        Activity Log
+                    </button>
+
+                    <button
+                        class="tab-btn"
+                        :class="{active: activeTab === 'doctorSummary'}"
+                        @click="activeTab = 'doctorSummary'"
+                    >
+                        Doctor Summary
+                    </button>
+
+                    <!-- Patients reach appointment booking from the MAIN dashboard -->
+                    <button
+                        v-if="userRole === 'patient'"
+                        class="tab-btn"
+                        :class="{active: activeTab === 'appointments'}"
+                        @click="activeTab = 'appointments'; patientTab = 'book'; loadDoctors(); loadMyAppointments()"
+                    >
+                        Appointments
+                    </button>
+
                 </div>
-            </div>
 
-            <!-- ── Reports Tab ──────────────────────────────────────── -->
-            <div v-if="activeTab === 'reports'">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Patient</th>
-                                <th>Report Type</th>
-                                <th>Generated By</th>
-                                <th>File Path</th>
-                                <th>Generated On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="r in reports" :key="r.report_id">
-                                <td>{{ r.report_id }}</td>
-                                <td>{{ r.patient_name }}</td>
-                                <td>{{ r.report_type }}</td>
-                                <td>{{ r.generated_by_doctor || '—' }}</td>
-                                <td>{{ r.file_path }}</td>
-                                <td>{{ r.generated_on }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- PATIENTS -->
+
+                <div v-if="activeTab === 'patients'">
+
+                    <input
+                        v-model="patientSearch"
+                        placeholder="Search patient by name..."
+                        style="max-width:350px;margin-bottom:15px;"
+                    />
+
+                    <div
+                        v-if="patientSearchNotice"
+                        class="alert alert-error"
+                    >
+                        {{ patientSearchNotice }}
+                    </div>
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Blood Group</th>
+                                    <th>Date of Birth</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="patient in filteredPatients"
+                                    :key="patient.patient_id"
+                                >
+
+                                    <td>
+                                        {{ patient.patient_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ patient.full_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ patient.gender }}
+                                    </td>
+
+                                    <td>
+                                        {{ patient.blood_group }}
+                                    </td>
+
+                                    <td>
+                                        {{ patient.date_of_birth }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div
+                        v-if="patientSearchLoading"
+                        class="loading"
+                        style="padding: 12px;"
+                    >
+                        Searching...
+                    </div>
+
+                    <div
+                        v-else-if="filteredPatients.length === 0"
+                        class="empty"
+                    >
+                        No patients found<span
+                            v-if="patientSearch.trim()"
+                        > with "{{ patientSearch.trim() }}" in their name</span>.
+                        <span v-if="patientSearchApplied">
+                            All patients were searched. Try fewer letters,
+                            or a name from the list when the box is empty.
+                        </span>
+                    </div>
+
+                    <div
+                        v-else-if="filteredPatients.length >= 50"
+                        class="fa-note"
+                    >
+                        Showing the 50 most recent matches. Type more
+                        of the name to narrow the list.
+                    </div>
+
+                    <div
+                        v-else-if="patientSearchApplied"
+                        class="fa-note"
+                    >
+                        {{ filteredPatients.length }} patient(s) found
+                        with "{{ patientSearch.trim() }}" in their name
+                        (all patients searched).
+                    </div>
+
                 </div>
-            </div>
 
-            <!-- ── Activity Log Tab ─────────────────────────────────── -->
-            <div v-if="activeTab === 'activity'">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Log ID</th>
-                                <th>User Type</th>
-                                <th>User ID</th>
-                                <th>Action</th>
-                                <th>Target Table</th>
-                                <th>Target ID</th>
-                                <th>IP Address</th>
-                                <th>Logged On</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="log in activityLog" :key="log.log_id">
-                                <td>{{ log.log_id }}</td>
-                                <td>{{ log.user_type }}</td>
-                                <td>{{ log.user_id }}</td>
-                                <td>{{ log.action }}</td>
-                                <td>{{ log.target_table }}</td>
-                                <td>{{ log.target_id }}</td>
-                                <td>{{ log.ip_address }}</td>
-                                <td>{{ log.logged_on }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- BILLING -->
+
+                <div v-if="activeTab === 'billing'">
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Bill ID</th>
+                                    <th>Patient</th>
+                                    <th>Total</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="bill in bills"
+                                    :key="bill.bill_id"
+                                >
+
+                                    <td>
+                                        {{ bill.bill_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ bill.patient_name }}
+                                    </td>
+
+                                    <td>
+                                        ₹{{ Number(bill.total_amount || 0).toLocaleString("en-IN") }}
+                                    </td>
+
+                                    <td>
+                                        ₹{{ Number(bill.amount_paid || 0).toLocaleString("en-IN") }}
+                                    </td>
+
+                                    <td>
+                                        {{ bill.status }}
+                                    </td>
+
+                                    <td>
+                                        {{ bill.bill_date }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
                 </div>
+
+
+                <!-- DOCTORS -->
+
+                <div v-if="activeTab === 'doctors'">
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Specialisation</th>
+                                    <th>Appointments</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="doctor in doctors"
+                                    :key="doctor.doctor_id"
+                                >
+
+                                    <td>
+                                        {{ doctor.doctor_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ doctor.full_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ doctor.specialisation }}
+                                    </td>
+
+                                    <td>
+                                        {{ doctor.total_appointments || 0 }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PRESCRIPTIONS -->
+
+                <div v-if="activeTab === 'prescriptions'">
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Medicine</th>
+                                    <th>Dosage</th>
+                                    <th>Frequency</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="item in prescriptions"
+                                    :key="item.prescription_id"
+                                >
+
+                                    <td>
+                                        {{ item.prescription_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.patient_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.doctor_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.medicine_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.dosage }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.frequency }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- NOTIFICATIONS -->
+
+                <div v-if="activeTab === 'notifications'">
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Message</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="item in notifications"
+                                    :key="item.notification_id"
+                                >
+
+                                    <td>
+                                        {{ item.notification_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.title }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.message }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.is_read ? "Read" : "Unread" }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.created_on || item.created_at }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- REPORTS -->
+
+                <div v-if="activeTab === 'reports'">
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient</th>
+                                    <th>Report Type</th>
+                                    <th>Generated On</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="item in reports"
+                                    :key="item.report_id"
+                                >
+
+                                    <td>
+                                        {{ item.report_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.patient_name }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.report_type }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.generated_on }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIVITY -->
+
+                <div v-if="activeTab === 'activity'">
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User Type</th>
+                                    <th>User ID</th>
+                                    <th>Action</th>
+                                    <th>Target</th>
+                                    <th>Logged On</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <tr
+                                    v-for="item in activityLog"
+                                    :key="item.log_id"
+                                >
+
+                                    <td>
+                                        {{ item.log_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.user_type }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.user_id }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.action }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.target_table }}
+                                    </td>
+
+                                    <td>
+                                        {{ item.logged_on }}
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DOCTOR SUMMARY -->
+
+                <div v-if="activeTab === 'doctorSummary'">
+
+                    <div class="form-card">
+
+                        <h3 style="color:#1f3864;margin-bottom:15px;">
+                            Appointments Per Doctor
+                        </h3>
+
+                        <canvas id="doctorChart"></canvas>
+
+                    </div>
+
+                </div>
+
+                <!-- ====================================================
+                     PATIENT AREA
+                ===================================================== -->
+
+                <div v-if="userRole === 'patient' && activeTab === 'appointments'">
+
+                    <div class="tabs">
+
+                        <button
+                            class="tab-btn"
+                            :class="{active: patientTab === 'book'}"
+                            @click="patientTab = 'book'; loadDoctors()"
+                        >
+                            Book Appointment
+                        </button>
+
+                        <button
+                            class="tab-btn"
+                            :class="{active: patientTab === 'appointments'}"
+                            @click="patientTab = 'appointments'; loadMyAppointments()"
+                        >
+                            My Appointments
+                        </button>
+
+                    </div>
+
+
+                    <!-- ================================================
+                         AI-ASSISTED BOOK APPOINTMENT
+                    ================================================= -->
+
+                    <div
+                        v-if="patientTab === 'book' && bookingResult"
+                        class="form-card booking-success"
+                    >
+                        <h2>Appointment Successful</h2>
+                        <div class="received">Message Received</div>
+                        <div class="details">
+                            <div><strong>Doctor:</strong> {{ doctorLabel(bookingResult.doctor_name) }}</div>
+                            <div><strong>Specialty:</strong> {{ bookingResult.specialisation }}</div>
+                            <div><strong>Date:</strong> {{ bookingResult.appointment_date }}</div>
+                            <div><strong>Time:</strong> {{ formatTime(bookingResult.appointment_time) }}</div>
+                            <div><strong>Reason:</strong> {{ bookingResult.reason }}</div>
+                            <div><strong>Status:</strong> {{ bookingResult.status }}</div>
+                        </div>
+                        <p>Your appointment request has been received successfully.</p>
+                        <button class="btn btn-primary" @click="bookAnother">Book Another Appointment</button>
+                        <button class="btn" @click="patientTab = 'appointments'; loadMyAppointments()">
+                            View My Appointments
+                        </button>
+                    </div>
+
+                    <div
+                        v-if="patientTab === 'book' && !bookingResult"
+                        class="form-card"
+                    >
+                        <div class="section-title">AI-Assisted Appointment Booking</div>
+
+                        <div
+                            v-if="appointmentMessage"
+                            :class="['alert', appointmentSuccess ? 'alert-success' : 'alert-error']"
+                        >
+                            {{ appointmentMessage }}
+                        </div>
+
+                        <div class="appointment-steps">
+                            <span :class="{active: bookingStage >= 1}">1. Symptoms</span>
+                            <span :class="{active: bookingStage >= 2}">2. AI Analysis</span>
+                            <span :class="{active: bookingStage >= 3}">3. Recommended Doctor</span>
+                            <span :class="{active: bookingStage >= 4}">4. Select Date</span>
+                            <span :class="{active: bookingStage >= 5}">5. Available Times</span>
+                            <span :class="{active: bookingStage >= 6}">6. Appointment Summary</span>
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="appointmentSymptoms">Describe what you're experiencing</label>
+                            <textarea
+                                id="appointmentSymptoms"
+                                v-model="booking.symptoms"
+                                rows="5"
+                                placeholder="Example: I have fever, cough and throat pain for three days."
+                                :disabled="aiAnalyzing || booking.aiCompleted"
+                            ></textarea>
+                            <p class="slot-note">
+                                The AI will recommend an appropriate specialty and an existing doctor
+                                before appointment times are shown.
+                            </p>
+                        </div>
+
+                        <button
+                            class="btn btn-primary"
+                            @click="analyzeSymptoms"
+                            :disabled="aiAnalyzing || booking.aiCompleted"
+                        >
+                            {{ aiAnalyzing ? "Analyzing Symptoms..." : "Analyze Symptoms" }}
+                        </button>
+
+                        <div
+                            v-if="booking.aiCompleted"
+                            class="ai-recommendation-card"
+                            style="margin-top:20px;padding:18px;border:1px solid #d9e2ec;border-radius:10px;"
+                        >
+                            <h3>AI Recommendation</h3>
+                            <p><strong>Recommended Specialty:</strong> {{ booking.specialty }}</p>
+                            <p><strong>Recommended Doctor:</strong> {{ doctorLabel(booking.doctorName) }}</p>
+                            <p>{{ booking.aiReason }}</p>
+                            <p class="slot-note">{{ booking.aiDisclaimer }}</p>
+                        </div>
+
+                        <div v-if="booking.aiCompleted" class="form-group" style="margin-top:20px;">
+                            <label for="appointmentDate">Select Appointment Date</label>
+                            <input
+                                id="appointmentDate"
+                                type="date"
+                                v-model="booking.date"
+                                :min="todayDate"
+                                @change="dateChanged"
+                                :disabled="slotsLoading"
+                            >
+                        </div>
+
+                        <div
+                            v-if="booking.aiCompleted && booking.date"
+                            class="form-group full"
+                            style="margin-top:20px;"
+                        >
+                            <label>Available Times</label>
+                            <div v-if="slotsLoading" class="slot-note">
+                                Loading available appointment times...
+                            </div>
+                            <div v-else-if="slotsError" class="slot-error">{{ slotsError }}</div>
+                            <div v-else-if="availableSlots.length === 0" class="slot-note">
+                                No available appointment times for this doctor on the selected date.
+                            </div>
+                            <div v-else class="slot-grid">
+                                <button
+                                    v-for="slot in availableSlots"
+                                    :key="slot"
+                                    type="button"
+                                    :class="['slot-btn', {selected: booking.time === slot}]"
+                                    @click="selectAppointmentTime(slot)"
+                                >
+                                    {{ formatTime(slot) }}<span v-if="booking.time === slot"> ✓</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div
+                            v-if="booking.aiCompleted && booking.date && booking.time"
+                            class="form-card"
+                            style="margin-top:20px;"
+                        >
+                            <h3>Appointment Summary</h3>
+                            <div class="details">
+                                <div><strong>Doctor:</strong> {{ doctorLabel(booking.doctorName) }}</div>
+                                <div><strong>Specialty:</strong> {{ booking.specialty }}</div>
+                                <div><strong>Date:</strong> {{ booking.date }}</div>
+                                <div><strong>Time:</strong> {{ formatTime(booking.time) }}</div>
+                                <div><strong>Reason:</strong> {{ booking.symptoms }}</div>
+                            </div>
+                            <button
+                                class="btn btn-primary"
+                                @click="bookAppointment"
+                                :disabled="bookingLoading"
+                                style="margin-top:16px;"
+                            >
+                                {{ bookingLoading ? "Booking..." : "Confirm Appointment" }}
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- ================================================
+                         PATIENT APPOINTMENTS
+                    ================================================= -->
+
+                    <div
+                        v-if="patientTab === 'appointments'"
+                    >
+
+                        <div class="section-title">
+                            My Appointments
+                        </div>
+
+                        <div
+                            v-if="appointmentsLoading"
+                            class="loading"
+                        >
+                            Loading appointments...
+                        </div>
+
+                        <div
+                            v-else-if="myAppointments.length === 0"
+                            class="empty"
+                        >
+                            You do not have any appointments.
+                        </div>
+
+                        <div
+                            v-else
+                            class="table-wrap"
+                        >
+
+                            <table>
+
+                                <thead>
+
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Doctor</th>
+                                        <th>Specialisation</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+
+                                </thead>
+
+                                <tbody>
+
+                                    <tr
+                                        v-for="appointment in myAppointments"
+                                        :key="appointment.appointment_id"
+                                    >
+
+                                        <td>
+                                            {{ appointment.appointment_date }}
+                                        </td>
+
+                                        <td>
+                                            {{ formatTime(appointment.appointment_time) }}
+                                        </td>
+
+                                        <td>
+                                            {{ appointment.doctor_name }}
+                                        </td>
+
+                                        <td>
+                                            {{ appointment.specialisation }}
+                                        </td>
+
+                                        <td>
+                                            {{ appointment.reason }}
+                                        </td>
+
+                                        <td>
+
+                                            <span
+                                                class="badge"
+                                                :class="statusClass(appointment.status)"
+                                            >
+                                                {{ appointment.status }}
+                                            </span>
+
+                                        </td>
+
+                                        <td>
+
+                                            <button
+                                                v-if="appointment.status === 'Scheduled'"
+                                                class="btn btn-danger"
+                                                @click="cancelAppointment(appointment)"
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                v-if="
+                                                    appointment.status === 'Completed'
+                                                    && !appointment.feedback_id
+                                                "
+                                                class="btn btn-primary"
+                                                @click="openFeedback(appointment)"
+                                            >
+                                                Give Feedback
+                                            </button>
+
+                                            <span
+                                                v-if="
+                                                    appointment.status === 'Completed'
+                                                    && appointment.feedback_id
+                                                "
+                                            >
+                                                Feedback submitted
+                                            </span>
+
+                                            <span
+                                                v-if="appointment.status === 'Cancelled'"
+                                            >
+                                                —
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
 
-        </div> <!-- end v-else -->
-    </div> <!-- end page -->
-</div> <!-- end #app -->
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         FEEDBACK MODAL
+    ============================================================= -->
+
+    <div
+        v-if="feedbackModal"
+        class="modal-overlay"
+    >
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <h2>
+                    Give Appointment Feedback
+                </h2>
+
+                <button
+                    class="close-btn"
+                    @click="feedbackModal = false"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Rating
+                </label>
+
+                <select v-model="feedback.rating">
+
+                    <option value="">
+                        Select rating
+                    </option>
+
+                    <option value="1">
+                        1 - Very Poor
+                    </option>
+
+                    <option value="2">
+                        2 - Poor
+                    </option>
+
+                    <option value="3">
+                        3 - Average
+                    </option>
+
+                    <option value="4">
+                        4 - Good
+                    </option>
+
+                    <option value="5">
+                        5 - Excellent
+                    </option>
+
+                </select>
+
+            </div>
+
+            <br />
+
+            <div class="form-group">
+
+                <label>
+                    Comment
+                </label>
+
+                <textarea
+                    v-model="feedback.comment"
+                    placeholder="Write your feedback..."
+                ></textarea>
+
+            </div>
+
+            <br />
+
+            <button
+                class="btn btn-primary"
+                @click="submitFeedback"
+                :disabled="feedbackLoading"
+            >
+                {{
+                    feedbackLoading
+                        ? "Submitting..."
+                        : "Submit Feedback"
+                }}
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         COMPLETE APPOINTMENT MODAL
+    ============================================================= -->
+
+    <div
+        v-if="completeModal"
+        class="modal-overlay"
+    >
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <h2>
+                    Complete Appointment
+                </h2>
+
+                <button
+                    class="close-btn"
+                    @click="completeModal = false"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div
+                v-if="completeMessage"
+                :class="[
+                    'alert',
+                    completeSuccess
+                        ? 'alert-success'
+                        : 'alert-error'
+                ]"
+            >
+                {{ completeMessage }}
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Diagnosis
+                </label>
+
+                <textarea
+                    v-model="completion.diagnosis"
+                    placeholder="Enter diagnosis..."
+                ></textarea>
+
+            </div>
+
+            <br />
+
+            <div class="form-group">
+
+                <label>
+                    Doctor Notes
+                </label>
+
+                <textarea
+                    v-model="completion.notes"
+                    placeholder="Enter appointment notes..."
+                ></textarea>
+
+            </div>
+
+            <br />
+
+            <button
+                class="btn btn-success"
+                @click="completeAppointment"
+                :disabled="completeLoading"
+            >
+                {{
+                    completeLoading
+                        ? "Saving..."
+                        : "Complete Appointment"
+                }}
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 <script>
-    // Vue.createApp defines the entire frontend application.
-    // data() holds all the variables the page uses.
-    // methods holds all the functions the page uses.
-    // mounted() runs automatically when the page first loads.
 
-    const { createApp } = Vue;
+const { createApp } = Vue;
 
-    createApp({
-        data() {
+const AUTH_API = "http://127.0.0.1:8002";
+
+const DASHBOARD_API = "http://127.0.0.1:8000";
+
+function getTodayDate() {
+    const d = new Date();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${month}-${day}`;
+}
+
+createApp({
+
+    data() {
+
+        return {
+
+            loading: true,
+
+            authError: "",
+
+            userEmail:
+                localStorage.getItem("user_email") || "",
+
+            userRole:
+                localStorage.getItem("user_role") || "",
+
+            linkedId:
+                localStorage.getItem("linked_id") || "",
+
+            accessToken:
+                localStorage.getItem("access_token") || "",
+
+            /* GENERAL DASHBOARD */
+
+            activeTab: "patients",
+
+            summary: {},
+
+            patients: [],
+
+            bills: [],
+
+            doctors: [],
+
+            prescriptions: [],
+
+            notifications: [],
+
+            reports: [],
+
+            activityLog: [],
+
+            doctorAnalytics: [],
+
+            patientSearch: "",
+
+            patientSearchLoading: false,
+
+            patientSearchNotice: "",
+
+            patientSearchApplied: "",
+
+            doctorChart: null,
+
+
+            /* PATIENT */
+
+            patientTab: "book",
+
+            doctorsLoaded: false,
+
+            todayDate: getTodayDate(),
+
+            availableDates: [],
+
+            availableSlots: [],
+
+            slotsLoading: false,
+
+            slotsError: "",
+
+            bookingResult: null,
+
+            aiAnalyzing: false,
+
+            bookingStage: 1,
+
+            myAppointments: [],
+
+            appointmentsLoading: false,
+
+            bookingLoading: false,
+
+            appointmentMessage: "",
+
+            appointmentSuccess: false,
+
+            booking: {
+
+                symptoms: "",
+
+                doctorId: "",
+
+                doctorName: "",
+
+                specialty: "",
+
+                date: "",
+
+                time: "",
+
+                aiCompleted: false,
+
+                aiReason: "",
+
+                aiDisclaimer: ""
+
+            },
+
+
+            /* FEEDBACK */
+
+            feedbackModal: false,
+
+            feedbackLoading: false,
+
+            feedback: {
+
+                appointmentId: null,
+
+                rating: "",
+
+                comment: ""
+
+            },
+
+
+            /* DOCTOR */
+
+            doctorTab: "appointments",
+
+            doctorAppointments: [],
+
+            doctorAvailability: [],
+
+            doctorFeedback: [],
+
+            /* AI FEEDBACK ANALYSIS */
+
+            feedbackAnalysis: null,
+
+            analysisLoading: false,
+
+            analysisError: "",
+
+            availabilityLoading: false,
+
+            availabilityMessage: "",
+
+            availabilitySuccess: false,
+
+            newAvailability: {
+
+                date: "",
+
+                time: ""
+
+            },
+
+
+            /* COMPLETE */
+
+            completeModal: false,
+
+            completeLoading: false,
+
+            completeMessage: "",
+
+            completeSuccess: false,
+
+            selectedAppointment: null,
+
+            completion: {
+
+                diagnosis: "",
+
+                notes: ""
+
+            }
+
+        };
+
+    },
+
+
+    computed: {
+
+        filteredPatients() {
+
+            const term =
+                (this.patientSearch || "")
+                    .toLowerCase()
+                    .trim();
+
+            if (!term) {
+                return this.patients;
+            }
+
+            // The server already searched ALL patients for this exact
+            // text, so do not filter its answer a second time here.
+            if (this.patientSearchApplied === term) {
+                return this.patients;
+            }
+
+            return this.patients.filter(
+                patient =>
+                    String(patient.full_name || "")
+                        .toLowerCase()
+                        .includes(term)
+            );
+
+        },
+
+        today() {
+
+            const d = new Date();
+
+            const month =
+                String(d.getMonth() + 1)
+                    .padStart(2, "0");
+
+            const day =
+                String(d.getDate())
+                    .padStart(2, "0");
+
+            return `${d.getFullYear()}-${month}-${day}`;
+
+        }
+
+    },
+
+
+    methods: {
+
+        /* ============================================================
+           TOKEN
+        ============================================================= */
+
+        getToken() {
+
+            return (
+                localStorage.getItem("access_token") ||
+                localStorage.getItem("accessToken") ||
+                localStorage.getItem("token") ||
+                ""
+            );
+
+        },
+
+
+        authHeaders() {
+
+            const token = this.getToken();
+
             return {
-                // State flags
-                loading:  true,   // true while waiting for API response
-                error:    false,  // true if API call fails
 
-                // Which tab is currently visible
-                activeTab: 'patients',
+                "Content-Type":
+                    "application/json",
 
-                // Search box value for patient filter
-                patientSearch: '',
+                "Authorization":
+                    "Bearer " + token
 
-                // Data from the API
-                summary:       {},
-                patients:      [],
-                bills:         [],
-                doctors:       [],
-                prescriptions: [],
-                notifications: [],
-                reports:       [],
-                activityLog:   [],
             };
+
         },
 
-        computed: {
-            // computed properties recalculate automatically
-            // whenever their dependencies change.
-            // filteredPatients updates every time patientSearch changes.
-            filteredPatients() {
-                const term = this.patientSearch.toLowerCase();
-                if (!term) return this.patients;
-                return this.patients.filter(p =>
-                    p.full_name.toLowerCase().includes(term)
-                );
-            },
-        },
 
-        methods: {
-            // Returns the correct CSS badge class for a billing status
-            badgeClass(status) {
-                const map = {
-                    'Paid':          'badge-paid',
-                    'Pending':       'badge-pending',
-                    'Partially Paid':'badge-partial',
-                    'Rejected':      'badge-rejected',
-                };
-                return map[status] || '';
-            },
+        /* ============================================================
+           INITIALIZATION
+        ============================================================= */
 
-            // Formats large numbers with commas: 1234567 becomes 1,234,567
-            formatNumber(n) {
-                return Number(n).toLocaleString('en-IN');
-            },
+        async initialize() {
 
-            // Fetches all data from the FastAPI backend
-            async fetchAll() {
-                try {
-                    // The base URL where FastAPI is running
-                    const base = 'http://127.0.0.1:8000';
+            const token = this.getToken();
 
-                    // fetch() is a built-in browser function that calls an API.
-                    // Promise.all runs all eight requests at the same time
-                    // instead of one after the other, making the page load faster.
-                    const [s, p, b, d, pr, n, r, a] = await Promise.all([
-                        fetch(`${base}/summary`).then(res => res.json()),
-                        fetch(`${base}/patients`).then(res => res.json()),
-                        fetch(`${base}/billing`).then(res => res.json()),
-                        fetch(`${base}/doctors`).then(res => res.json()),
-                        fetch(`${base}/prescriptions`).then(res => res.json()),
-                        fetch(`${base}/notifications`).then(res => res.json()),
-                        fetch(`${base}/reports`).then(res => res.json()),
-                        fetch(`${base}/activity-log`).then(res => res.json()),
-                    ]);
+            if (!token) {
 
-                    // Store the returned data in our variables
-                    this.summary       = s;
-                    this.patients      = p.patients;
-                    this.bills         = b.bills;
-                    this.doctors       = d.doctors;
-                    this.prescriptions = pr.prescriptions;
-                    this.notifications = n.notifications;
-                    this.reports       = r.reports;
-                    this.activityLog   = a.activity_log;
-                    this.loading       = false;
+                window.location.href =
+                    "../auth/portal.html";
 
-                } catch (err) {
-                    // If any request fails, show the error state
-                    console.error('API error:', err);
-                    this.loading = false;
-                    this.error   = true;
+                return;
+
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API + "/me",
+                        {
+                            headers: {
+                                "Authorization":
+                                    "Bearer " + token
+                            }
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    this.clearSession();
+
+                    return;
+
                 }
-            },
+
+                const data =
+                    await response.json();
+
+                this.userEmail =
+                    data.user?.email || "";
+
+                this.userRole =
+                    data.user?.role || "";
+
+                this.linkedId =
+                    data.user?.linked_id ?? "";
+
+                localStorage.setItem(
+                    "user_email",
+                    this.userEmail
+                );
+
+                localStorage.setItem(
+                    "user_role",
+                    this.userRole
+                );
+
+                localStorage.setItem(
+                    "linked_id",
+                    this.linkedId
+                );
+
+
+                if (this.userRole === "patient") {
+
+                    this.patientTab = "book";
+
+                    await this.loadHospitalDashboard();
+
+                    await this.loadDoctors();
+
+                    await this.loadMyAppointments();
+
+                }
+
+                else if (this.userRole === "doctor") {
+
+                    this.doctorTab =
+                        "appointments";
+
+                    await this.loadDoctorAppointments();
+
+                }
+
+                else {
+
+                    await this.loadHospitalDashboard();
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Initialization error:",
+                    error
+                );
+
+                this.authError =
+                    "Unable to connect to CareSync.";
+
+            }
+
+            finally {
+
+                this.loading = false;
+
+            }
+
         },
 
-        // mounted() runs automatically as soon as the page finishes loading.
-        // This is where we trigger the first data fetch.
-        mounted() {
-            this.fetchAll();
+
+        /* ============================================================
+           LOGOUT
+        ============================================================= */
+
+        async logout() {
+
+            const refreshToken =
+                localStorage.getItem(
+                    "refresh_token"
+                );
+
+            try {
+
+                if (refreshToken) {
+
+                    await fetch(
+                        AUTH_API + "/logout",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+                                "Authorization":
+                                    "Bearer " +
+                                    this.getToken()
+                            },
+
+                            body: JSON.stringify({
+                                refresh_token:
+                                    refreshToken
+                            })
+                        }
+                    );
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.warn(
+                    "Logout request failed:",
+                    error
+                );
+
+            }
+
+            this.clearSession();
+
         },
 
-    }).mount('#app');  // Attach Vue to the div with id='app'
+
+        clearSession() {
+
+            localStorage.removeItem(
+                "access_token"
+            );
+
+            localStorage.removeItem(
+                "refresh_token"
+            );
+
+            localStorage.removeItem(
+                "accessToken"
+            );
+
+            localStorage.removeItem(
+                "token"
+            );
+
+            localStorage.removeItem(
+                "user_email"
+            );
+
+            localStorage.removeItem(
+                "user_role"
+            );
+
+            localStorage.removeItem(
+                "linked_id"
+            );
+
+            localStorage.removeItem(
+                "user_id"
+            );
+
+            window.location.href =
+                "../auth/portal.html";
+
+        },
+
+
+        /* ============================================================
+           GENERAL HOSPITAL DASHBOARD
+        ============================================================= */
+
+        async loadHospitalDashboard() {
+
+            try {
+
+                const [
+                    summaryResponse,
+                    patientsResponse,
+                    billingResponse,
+                    doctorsResponse,
+                    prescriptionsResponse,
+                    notificationsResponse,
+                    reportsResponse,
+                    activityResponse,
+                    doctorSummaryResponse
+
+                ] = await Promise.all([
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/summary"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/patients"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/billing"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/doctors"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/prescriptions"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/notifications"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/reports"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/activity-log"
+                    ),
+
+                    fetch(
+                        DASHBOARD_API +
+                        "/doctor-summary"
+                    )
+
+                ]);
+
+
+                if (summaryResponse.ok) {
+
+                    this.summary =
+                        await summaryResponse.json();
+
+                }
+
+                if (patientsResponse.ok) {
+
+                    const data =
+                        await patientsResponse.json();
+
+                    this.patients =
+                        data.patients || [];
+
+                }
+
+                if (billingResponse.ok) {
+
+                    const data =
+                        await billingResponse.json();
+
+                    this.bills =
+                        data.bills || [];
+
+                }
+
+                if (doctorsResponse.ok) {
+
+                    const data =
+                        await doctorsResponse.json();
+
+                    this.doctors =
+                        data.doctors || [];
+
+                }
+
+                if (prescriptionsResponse.ok) {
+
+                    const data =
+                        await prescriptionsResponse.json();
+
+                    this.prescriptions =
+                        data.prescriptions || [];
+
+                }
+
+                if (notificationsResponse.ok) {
+
+                    const data =
+                        await notificationsResponse.json();
+
+                    this.notifications =
+                        data.notifications || [];
+
+                }
+
+                if (reportsResponse.ok) {
+
+                    const data =
+                        await reportsResponse.json();
+
+                    this.reports =
+                        data.reports || [];
+
+                }
+
+                if (activityResponse.ok) {
+
+                    const data =
+                        await activityResponse.json();
+
+                    this.activityLog =
+                        data.activity_log || [];
+
+                }
+
+                if (doctorSummaryResponse.ok) {
+
+                    const data =
+                        await doctorSummaryResponse.json();
+
+                    this.doctorAnalytics =
+                        data.doctor_summary || [];
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Hospital dashboard error:",
+                    error
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           PATIENT - DOCTORS
+        ============================================================= */
+
+        async loadDoctors() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/api/doctors",
+                        {
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    if (response.status === 401) {
+
+                        this.clearSession();
+
+                    }
+
+                    return;
+
+                }
+
+                const data =
+                    await response.json();
+
+                this.doctors =
+                    data.doctors || [];
+
+                this.doctorsLoaded = true;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Doctor loading error:",
+                    error
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           PATIENT - DOCTOR CHANGE
+        ============================================================= */
+
+        async doctorChanged() {
+
+            this.booking.date = "";
+
+            this.booking.time = "";
+
+            this.availableDates = [];
+
+            this.availableSlots = [];
+
+            if (!this.booking.doctorId) {
+
+                return;
+
+            }
+
+            await this.loadAvailableDates();
+
+        },
+
+
+        /* ============================================================
+           PATIENT - LOAD DATES
+        ============================================================= */
+
+        async loadAvailableDates() {
+
+            /*
+             * The backend generates the time slots for ANY date, so the
+             * date list is built locally (next 60 days). Slots are loaded
+             * from the API only after the patient picks a date.
+             */
+
+            this.availableDates = [];
+
+            const today = new Date();
+
+            for (let i = 0; i < 60; i++) {
+
+                const d = new Date(today);
+
+                d.setDate(today.getDate() + i);
+
+                const month = String(d.getMonth() + 1).padStart(2, "0");
+
+                const day = String(d.getDate()).padStart(2, "0");
+
+                this.availableDates.push(`${d.getFullYear()}-${month}-${day}`);
+
+            }
+
+        },
+
+
+        /* ============================================================
+           PATIENT - NORMALISE SLOT RESPONSE
+           Accepts {available_slots: ["09:00", ...]} and the older
+           {slots: [{available_time: "09:00:00"}, ...]} structure.
+        ============================================================= */
+
+        normalizeSlots(data) {
+
+            const raw =
+                (data && (data.available_slots || data.slots)) || [];
+
+            const result = [];
+
+            for (const item of raw) {
+
+                let value = item;
+
+                if (item && typeof item === "object") {
+
+                    value =
+                        item.available_time ||
+                        item.appointment_time ||
+                        item.time ||
+                        item.slot ||
+                        "";
+
+                }
+
+                value = String(value || "").trim();
+
+                if (!value || value === "[object Object]") {
+
+                    continue;
+
+                }
+
+                result.push(value.substring(0, 5));
+
+            }
+
+            return result;
+
+        },
+
+
+        errorText(data, fallback) {
+
+            const detail = data && data.detail;
+
+            if (typeof detail === "string") {
+
+                return detail;
+
+            }
+
+            if (Array.isArray(detail) && detail.length > 0) {
+
+                return detail
+                    .map(d => (d && d.msg) || JSON.stringify(d))
+                    .join("; ");
+
+            }
+
+            return fallback;
+
+        },
+
+
+        /* ============================================================
+           PATIENT - DATE CHANGE
+        ============================================================= */
+
+        async dateChanged() {
+
+            this.booking.time = "";
+            this.availableSlots = [];
+            this.slotsError = "";
+
+            if (!this.booking.aiCompleted || !this.booking.doctorId || !this.booking.date) {
+                return;
+            }
+
+            this.bookingStage = 4;
+            this.slotsLoading = true;
+
+            try {
+                const response = await fetch(
+                    AUTH_API +
+                    `/api/doctors/${this.booking.doctorId}/availability?appointment_date=${this.booking.date}`,
+                    {
+                        headers: this.authHeaders()
+                    }
+                );
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = null;
+                }
+
+                if (response.status === 401) {
+                    this.clearSession();
+                    return;
+                }
+
+                if (!response.ok) {
+                    console.error("Availability error:", response.status, data);
+                    this.slotsError = this.errorText(
+                        data,
+                        "Unable to load available times. Please try again."
+                    );
+                    return;
+                }
+
+                this.availableSlots = this.normalizeSlots(data);
+                this.bookingStage = this.availableSlots.length > 0 ? 5 : 4;
+
+                if (this.availableSlots.length === 0) {
+                    this.slotsError = "";
+                }
+
+            } catch (error) {
+                console.error("Availability time error:", error);
+                this.slotsError =
+                    "Unable to load available times. Please try again.";
+            } finally {
+                this.slotsLoading = false;
+            }
+        },
+
+
+        selectAppointmentTime(slot) {
+            this.booking.time = String(slot || "").substring(0, 5);
+            this.bookingStage = this.booking.time ? 6 : 5;
+        },
+
+
+        async analyzeSymptoms() {
+
+            this.appointmentMessage = "";
+            this.appointmentSuccess = false;
+
+            const symptoms = String(this.booking.symptoms || "").trim();
+
+            if (!symptoms) {
+                this.appointmentMessage =
+                    "Please describe what you're experiencing.";
+                return;
+            }
+
+            this.aiAnalyzing = true;
+            this.bookingStage = 2;
+
+            try {
+                const response = await fetch(
+                    AUTH_API + "/api/appointments/analyze-symptoms",
+                    {
+                        method: "POST",
+                        headers: {
+                            ...this.authHeaders(),
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            symptoms: symptoms
+                        })
+                    }
+                );
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = null;
+                }
+
+                if (response.status === 401) {
+                    this.clearSession();
+                    return;
+                }
+
+                if (!response.ok) {
+                    this.appointmentMessage = this.errorText(
+                        data,
+                        "Unable to analyze symptoms right now. Please try again."
+                    );
+                    return;
+                }
+
+                const doctor = data && data.doctor;
+
+                if (
+                    !data ||
+                    !data.recommended_doctor_id ||
+                    !doctor
+                ) {
+                    this.appointmentMessage =
+                        "No suitable doctor was found. Please contact the hospital.";
+                    return;
+                }
+
+                this.booking.doctorId =
+                    Number(data.recommended_doctor_id);
+
+                this.booking.doctorName =
+                    data.recommended_doctor_name ||
+                    doctor.full_name ||
+                    "";
+
+                this.booking.specialty =
+                    data.recommended_specialty ||
+                    doctor.specialisation ||
+                    "";
+
+                this.booking.aiReason =
+                    data.reason ||
+                    "Your symptoms appear most relevant to the recommended specialty.";
+
+                this.booking.aiDisclaimer =
+                    data.disclaimer ||
+                    "This recommendation is for appointment routing and is not a medical diagnosis.";
+
+                this.booking.aiCompleted = true;
+                this.bookingStage = 3;
+                this.booking.date = "";
+                this.booking.time = "";
+                this.availableSlots = [];
+                this.slotsError = "";
+                this.appointmentMessage = "";
+
+            } catch (error) {
+                console.error("Symptom analysis error:", error);
+                this.appointmentMessage =
+                    "Unable to analyze symptoms right now. Please try again.";
+            } finally {
+                this.aiAnalyzing = false;
+            }
+        },
+
+
+        async bookAppointment() {
+
+            this.appointmentMessage = "";
+            this.appointmentSuccess = false;
+
+            if (!this.booking.symptoms.trim()) {
+                this.appointmentMessage =
+                    "Please enter your symptoms or reason for the visit.";
+                return;
+            }
+
+            if (!this.booking.aiCompleted || !this.booking.doctorId) {
+                this.appointmentMessage =
+                    "Please analyze your symptoms and receive a doctor recommendation first.";
+                return;
+            }
+
+            if (!this.booking.date) {
+                this.appointmentMessage =
+                    "Please select an appointment date.";
+                return;
+            }
+
+            if (!this.booking.time) {
+                this.appointmentMessage =
+                    "Please select an available time.";
+                return;
+            }
+
+            this.bookingLoading = true;
+
+            try {
+                const response = await fetch(
+                    AUTH_API + "/api/appointments/book",
+                    {
+                        method: "POST",
+                        headers: {
+                            ...this.authHeaders(),
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            patient_id: Number(this.linkedId),
+                            reason: this.booking.symptoms.trim(),
+                            doctor_id: Number(this.booking.doctorId),
+                            appointment_date: this.booking.date,
+                            appointment_time: this.booking.time,
+                            symptoms: this.booking.symptoms.trim()
+                        })
+                    }
+                );
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = null;
+                }
+
+                if (response.status === 401) {
+                    this.clearSession();
+                    return;
+                }
+
+                if (!response.ok) {
+                    this.appointmentMessage = this.errorText(
+                        data,
+                        "Appointment could not be booked."
+                    );
+
+                    if (response.status === 409) {
+                        this.booking.time = "";
+                        await this.dateChanged();
+                    }
+
+                    return;
+                }
+
+                this.bookingResult = data.appointment || null;
+
+                if (!this.bookingResult) {
+                    this.appointmentMessage =
+                        "Appointment was saved, but no confirmation details were returned.";
+                    return;
+                }
+
+                this.appointmentSuccess = true;
+                this.appointmentMessage = "";
+                this.bookingStage = 6;
+
+                await this.loadMyAppointments();
+
+            } catch (error) {
+                console.error("Booking error:", error);
+                this.appointmentMessage =
+                    "Unable to connect to appointment server.";
+            } finally {
+                this.bookingLoading = false;
+            }
+        },
+
+
+        doctorLabel(name) {
+
+            const text = String(name || "").trim();
+
+            return /^dr\.?\s/i.test(text) ? text : "Dr. " + text;
+
+        },
+
+
+        bookAnother() {
+
+            this.bookingResult = null;
+            this.appointmentMessage = "";
+            this.appointmentSuccess = false;
+            this.aiAnalyzing = false;
+            this.bookingStage = 1;
+
+            this.booking = {
+                symptoms: "",
+                doctorId: "",
+                doctorName: "",
+                specialty: "",
+                date: "",
+                time: "",
+                aiCompleted: false,
+                aiReason: "",
+                aiDisclaimer: ""
+            };
+
+            this.availableDates = [];
+            this.availableSlots = [];
+            this.slotsError = "";
+
+        },
+
+
+        /* ============================================================
+           PATIENT - MY APPOINTMENTS
+        ============================================================= */
+
+        async loadMyAppointments() {
+
+            this.appointmentsLoading = true;
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/api/appointments/my",
+                        {
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    if (response.status === 401) {
+
+                        this.clearSession();
+
+                    }
+
+                    return;
+
+                }
+
+                const data =
+                    await response.json();
+
+                this.myAppointments =
+                    data.appointments || [];
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "My appointments error:",
+                    error
+                );
+
+            }
+
+            finally {
+
+                this.appointmentsLoading = false;
+
+            }
+
+        },
+
+
+        /* ============================================================
+           PATIENT - CANCEL
+        ============================================================= */
+
+        async cancelAppointment(appointment) {
+
+            const confirmed =
+                window.confirm(
+                    "Are you sure you want to cancel this appointment?"
+                );
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        `/api/appointments/${appointment.appointment_id}/cancel`,
+                        {
+                            method: "PUT",
+
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    alert(
+                        data.detail ||
+                        "Unable to cancel appointment."
+                    );
+
+                    return;
+
+                }
+
+                alert(
+                    "Appointment cancelled successfully."
+                );
+
+                await this.loadMyAppointments();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Cancel error:",
+                    error
+                );
+
+                alert(
+                    "Unable to connect to appointment server."
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           FEEDBACK - OPEN
+        ============================================================= */
+
+        openFeedback(appointment) {
+
+            this.feedback = {
+
+                appointmentId:
+                    appointment.appointment_id,
+
+                rating: "",
+
+                comment: ""
+
+            };
+
+            this.feedbackModal = true;
+
+        },
+
+
+        /* ============================================================
+           FEEDBACK - SUBMIT
+        ============================================================= */
+
+        async submitFeedback() {
+
+            if (!this.feedback.rating) {
+
+                alert(
+                    "Please select a rating."
+                );
+
+                return;
+
+            }
+
+            this.feedbackLoading = true;
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        `/api/appointments/${this.feedback.appointmentId}/feedback`,
+                        {
+                            method: "POST",
+
+                            headers:
+                                this.authHeaders(),
+
+                            body: JSON.stringify({
+
+                                rating:
+                                    Number(
+                                        this.feedback.rating
+                                    ),
+
+                                comment:
+                                    this.feedback.comment.trim()
+
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    alert(
+                        data.detail ||
+                        "Feedback could not be submitted."
+                    );
+
+                    return;
+
+                }
+
+                alert(
+                    "Feedback submitted successfully."
+                );
+
+                this.feedbackModal = false;
+
+                await this.loadMyAppointments();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Feedback error:",
+                    error
+                );
+
+                alert(
+                    "Unable to submit feedback."
+                );
+
+            }
+
+            finally {
+
+                this.feedbackLoading = false;
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - APPOINTMENTS
+        ============================================================= */
+
+        async loadDoctorAppointments() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/dashboard/doctor",
+                        {
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    if (response.status === 401) {
+
+                        this.clearSession();
+
+                    }
+
+                    return;
+
+                }
+
+                const data =
+                    await response.json();
+
+                this.doctorAppointments =
+                    data.appointments || [];
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Doctor appointments error:",
+                    error
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - AVAILABILITY
+        ============================================================= */
+
+        async loadDoctorAvailability() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/api/doctor/availability",
+                        {
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    return;
+
+                }
+
+                const data =
+                    await response.json();
+
+                this.doctorAvailability =
+                    data.slots || [];
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Doctor availability error:",
+                    error
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - ADD AVAILABILITY
+        ============================================================= */
+
+        async addAvailability() {
+
+            this.availabilityMessage = "";
+
+            this.availabilitySuccess = false;
+
+
+            if (!this.newAvailability.date) {
+
+                this.availabilityMessage =
+                    "Please select a date.";
+
+                return;
+
+            }
+
+            if (!this.newAvailability.time) {
+
+                this.availabilityMessage =
+                    "Please select a time.";
+
+                return;
+
+            }
+
+
+            this.availabilityLoading = true;
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/api/doctor/availability",
+                        {
+                            method: "POST",
+
+                            headers:
+                                this.authHeaders(),
+
+                            body: JSON.stringify({
+
+                                available_date:
+                                    this.newAvailability.date,
+
+                                available_time:
+                                    this.newAvailability.time
+
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    this.availabilityMessage =
+                        data.detail ||
+                        "Unable to add availability.";
+
+                    return;
+
+                }
+
+
+                this.availabilitySuccess = true;
+
+                this.availabilityMessage =
+                    "Availability added successfully.";
+
+
+                this.newAvailability.date = "";
+
+                this.newAvailability.time = "";
+
+
+                await this.loadDoctorAvailability();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Add availability error:",
+                    error
+                );
+
+                this.availabilityMessage =
+                    "Unable to connect to appointment server.";
+
+            }
+
+            finally {
+
+                this.availabilityLoading = false;
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - DELETE AVAILABILITY
+        ============================================================= */
+
+        async deleteAvailability(slot) {
+
+            const confirmed =
+                window.confirm(
+                    "Delete this availability slot?"
+                );
+
+            if (!confirmed) {
+
+                return;
+
+            }
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        `/api/doctor/availability/${slot.availability_id}`,
+                        {
+                            method: "DELETE",
+
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    alert(
+                        data.detail ||
+                        "Unable to delete availability."
+                    );
+
+                    return;
+
+                }
+
+                await this.loadDoctorAvailability();
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Delete availability error:",
+                    error
+                );
+
+                alert(
+                    "Unable to delete availability."
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - OPEN COMPLETE
+        ============================================================= */
+
+        openComplete(appointment) {
+
+            this.selectedAppointment =
+                appointment;
+
+            this.completion = {
+
+                diagnosis:
+                    appointment.diagnosis || "",
+
+                notes:
+                    appointment.notes || ""
+
+            };
+
+            this.completeMessage = "";
+
+            this.completeSuccess = false;
+
+            this.completeModal = true;
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - COMPLETE
+        ============================================================= */
+
+        async completeAppointment() {
+
+            if (!this.selectedAppointment) {
+
+                return;
+
+            }
+
+            this.completeLoading = true;
+
+            this.completeMessage = "";
+
+            this.completeSuccess = false;
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        `/api/appointments/${this.selectedAppointment.appointment_id}/complete`,
+                        {
+                            method: "PUT",
+
+                            headers:
+                                this.authHeaders(),
+
+                            body: JSON.stringify({
+
+                                diagnosis:
+                                    this.completion.diagnosis.trim(),
+
+                                notes:
+                                    this.completion.notes.trim()
+
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    this.completeMessage =
+                        data.detail ||
+                        "Appointment could not be completed.";
+
+                    return;
+
+                }
+
+
+                this.completeSuccess = true;
+
+                this.completeMessage =
+                    "Appointment completed successfully.";
+
+
+                await this.loadDoctorAppointments();
+
+
+                setTimeout(() => {
+
+                    this.completeModal = false;
+
+                }, 800);
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Complete appointment error:",
+                    error
+                );
+
+                this.completeMessage =
+                    "Unable to connect to appointment server.";
+
+            }
+
+            finally {
+
+                this.completeLoading = false;
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - FEEDBACK
+        ============================================================= */
+
+        async loadDoctorFeedback() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/api/doctor/feedback",
+                        {
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    return;
+
+                }
+
+                const data =
+                    await response.json();
+
+                this.doctorFeedback =
+                    data.feedback || [];
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Doctor feedback error:",
+                    error
+                );
+
+            }
+
+        },
+
+
+        /* ============================================================
+           DOCTOR - AI FEEDBACK ANALYSIS
+        ============================================================= */
+
+        async analyseFeedback(refresh) {
+
+            this.analysisLoading = true;
+
+            this.analysisError = "";
+
+            try {
+
+                const response =
+                    await fetch(
+                        AUTH_API +
+                        "/api/doctor/feedback/analysis" +
+                        (refresh ? "?refresh=true" : ""),
+                        {
+                            headers:
+                                this.authHeaders()
+                        }
+                    );
+
+                let data = null;
+
+                try {
+
+                    data = await response.json();
+
+                }
+
+                catch (e) {
+
+                    data = null;
+
+                }
+
+                if (response.status === 401) {
+
+                    this.clearSession();
+
+                    return;
+
+                }
+
+                if (!response.ok) {
+
+                    this.analysisError =
+                        this.errorText(
+                            data,
+                            "Unable to analyse feedback. Please try again."
+                        );
+
+                    return;
+
+                }
+
+                this.feedbackAnalysis = data;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Feedback analysis error:",
+                    error
+                );
+
+                this.analysisError =
+                    "Unable to reach the server. Please try again.";
+
+            }
+
+            finally {
+
+                this.analysisLoading = false;
+
+            }
+
+        },
+
+
+        sentimentBadge(sentiment) {
+
+            return "badge badge-" + (sentiment || "neutral");
+
+        },
+
+
+        rowSentiment(feedbackId) {
+
+            const map =
+                this.feedbackAnalysis &&
+                this.feedbackAnalysis.comment_sentiments;
+
+            return map ? (map[feedbackId] || "") : "";
+
+        },
+
+
+        analysisIsStale() {
+
+            if (!this.feedbackAnalysis) {
+
+                return false;
+
+            }
+
+            // The server analyses at most `row_limit` newest reviews.
+            const limit =
+                this.feedbackAnalysis.row_limit || Infinity;
+
+            return (
+                this.feedbackAnalysis.stats.total !==
+                Math.min(this.doctorFeedback.length, limit)
+            );
+
+        },
+
+
+        formatMonth(value) {
+
+            const parts = String(value || "").split("-");
+
+            if (parts.length !== 2) {
+
+                return value || "";
+
+            }
+
+            const names = [
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            ];
+
+            const monthName = names[Number(parts[1]) - 1];
+
+            if (!monthName) {
+
+                return value;
+
+            }
+
+            return monthName + " " + parts[0];
+
+        },
+
+
+        formatGeneratedAt(value) {
+
+            const date = new Date(value);
+
+            return isNaN(date.getTime())
+                ? ""
+                : date.toLocaleString();
+
+        },
+
+
+        /* ============================================================
+           PATIENTS - SERVER-SIDE SEARCH
+           (the page only loads the 50 newest patients, so the
+           name search must ask the server to look at everyone)
+        ============================================================= */
+
+        async searchPatients() {
+
+            const term = (this.patientSearch || "").trim();
+
+            const requestId = (this._patientSearchId || 0) + 1;
+
+            this._patientSearchId = requestId;
+
+            this.patientSearchLoading = true;
+
+            try {
+
+                const response =
+                    await fetch(
+                        DASHBOARD_API +
+                        "/patients?search=" +
+                        encodeURIComponent(term)
+                    );
+
+                if (!response.ok) {
+
+                    if (requestId === this._patientSearchId) {
+
+                        this.patientSearchNotice =
+                            "Search failed (server answered " +
+                            response.status +
+                            "). Check the dashboard server in the terminal.";
+
+                    }
+
+                    return;
+
+                }
+
+                const data =
+                    await response.json();
+
+                // Ignore answers to older keystrokes that arrive late.
+                if (requestId !== this._patientSearchId) {
+
+                    return;
+
+                }
+
+                this.patients =
+                    data.patients || [];
+
+                this.patientSearchApplied =
+                    (data.search === term) ? term.toLowerCase() : "";
+
+                // An up-to-date server echoes the search text back.
+                // If it does not, it is still running the old code
+                // and ignoring the search, so say so instead of
+                // silently showing the same 50 patients.
+                this.patientSearchNotice =
+                    (term && data.search !== term)
+                        ? "The dashboard server is running an older version " +
+                          "and cannot search all patients. Stop it and start it " +
+                          "again (uvicorn main:app --reload --port 8000 in the " +
+                          "dashboard folder), then refresh this page."
+                        : "";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Patient search error:",
+                    error
+                );
+
+                if (requestId === this._patientSearchId) {
+
+                    this.patientSearchNotice =
+                        "Cannot reach the dashboard server at " +
+                        DASHBOARD_API +
+                        ". Is it running?";
+
+                }
+
+            }
+
+            finally {
+
+                if (requestId === this._patientSearchId) {
+
+                    this.patientSearchLoading = false;
+
+                }
+
+            }
+
+        },
+
+
+        /* ============================================================
+           FORMATTING
+        ============================================================= */
+
+        formatDate(dateString) {
+
+            if (!dateString) {
+
+                return "";
+
+            }
+
+            const date =
+                new Date(
+                    dateString + "T00:00:00"
+                );
+
+            return date.toLocaleDateString(
+                "en-IN",
+                {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                }
+            );
+
+        },
+
+
+        formatTime(timeString) {
+
+            if (!timeString) {
+
+                return "";
+
+            }
+
+            const parts =
+                String(timeString)
+                    .split(":");
+
+            if (parts.length < 2) {
+
+                return timeString;
+
+            }
+
+            let hour =
+                Number(parts[0]);
+
+            const minute =
+                parts[1];
+
+            const suffix =
+                hour >= 12
+                    ? "PM"
+                    : "AM";
+
+            hour =
+                hour % 12 || 12;
+
+            return `${hour}:${minute} ${suffix}`;
+
+        },
+
+
+        statusClass(status) {
+
+            if (status === "Completed") {
+
+                return "badge-completed";
+
+            }
+
+            if (status === "Cancelled") {
+
+                return "badge-cancelled";
+
+            }
+
+            return "badge-scheduled";
+
+        },
+
+
+        /* ============================================================
+           DOCTOR CHART
+        ============================================================= */
+
+        renderDoctorChart() {
+
+            this.$nextTick(() => {
+
+                const canvas =
+                    document.getElementById(
+                        "doctorChart"
+                    );
+
+                if (!canvas) {
+
+                    return;
+
+                }
+
+                if (this.doctorChart) {
+
+                    this.doctorChart.destroy();
+
+                }
+
+                const labels =
+                    this.doctorAnalytics.map(
+                        doctor =>
+                            doctor.full_name
+                    );
+
+                const values =
+                    this.doctorAnalytics.map(
+                        doctor =>
+                            doctor.total_appointments || 0
+                    );
+
+
+                this.doctorChart =
+                    new Chart(
+                        canvas,
+                        {
+                            type: "bar",
+
+                            data: {
+
+                                labels,
+
+                                datasets: [
+
+                                    {
+                                        label:
+                                            "Total Appointments",
+
+                                        data:
+                                            values,
+
+                                        backgroundColor:
+                                            "#1f3864"
+                                    }
+
+                                ]
+
+                            },
+
+                            options: {
+
+                                responsive: true,
+
+                                scales: {
+
+                                    y: {
+                                        beginAtZero: true
+                                    }
+
+                                }
+
+                            }
+
+                        }
+                    );
+
+            });
+
+        }
+
+    },
+
+
+    watch: {
+
+        patientSearch() {
+
+            clearTimeout(this._patientSearchTimer);
+
+            this._patientSearchTimer = setTimeout(
+                () => this.searchPatients(),
+                300
+            );
+
+        },
+
+
+        activeTab(value) {
+
+            if (
+                value === "doctorSummary"
+            ) {
+
+                this.renderDoctorChart();
+
+            }
+
+        },
+
+        doctorTab(value) {
+
+            if (
+                value === "appointments"
+            ) {
+
+                this.loadDoctorAppointments();
+
+            }
+
+            if (
+                value === "availability"
+            ) {
+
+                this.loadDoctorAvailability();
+
+            }
+
+            if (
+                value === "feedback"
+            ) {
+
+                this.loadDoctorFeedback();
+
+            }
+
+        },
+
+        patientTab(value) {
+
+            if (
+                value === "appointments"
+            ) {
+
+                this.loadMyAppointments();
+
+            }
+
+            if (
+                value === "book"
+            ) {
+
+                this.loadDoctors();
+
+            }
+
+        }
+
+    },
+
+
+    mounted() {
+
+        this.initialize();
+
+    }
+
+}).mount("#app");
+
 </script>
 
 </body>
